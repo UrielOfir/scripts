@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+
+# VScode Ui users can run the commit yoshi script by running the following command in the project root directory:
+# “yarn husky install && echo ‘PATH=$PATH:’$PATH >> .husky/_/husky.sh”
+
+staging=($(git diff --name-only --cached))
+directories=("<directory1 in monorepo", "<directory2 in monorepo>")
+
+directoriesToLint=()
+for directory in "${directories[@]}"; do
+    for file in "${staging[@]}"; do
+      if [[ "$file" == "${directory}"* ]]; then
+        directoriesToLint+=($directory)
+        break
+      fi
+    done
+done
+
+for directory in "${directoriesToLint[@]}"; do
+      cd ${directory}
+        yarn run-lint
+      cd ..
+done
+
+for file in "${staging[@]}"; do
+      git add $file
+done
